@@ -86,18 +86,19 @@ body {
 .header p  { font-size: 12px; opacity: .7; margin-top: 2px; }
 .theme-toggle {
   flex-shrink: 0;
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.3);
-  background: rgba(255,255,255,.12);
-  color: #fff;
-  font-size: 17px;
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,.85);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  transition: background .15s;
+  transition: color .15s, background .15s;
+  padding: 0;
 }
-.theme-toggle:active { background: rgba(255,255,255,.25); }
-body.dark .theme-toggle { border-color: rgba(255,255,255,.18); }
+.theme-toggle:active { background: rgba(255,255,255,.1); }
+.theme-toggle svg { display: block; }
+body.dark .theme-toggle { color: rgba(255,255,255,.75); }
 
 /* ── tabs ── */
 .tabs {
@@ -370,7 +371,22 @@ body.dark .theme-toggle { border-color: rgba(255,255,255,.18); }
     <h1>🇯🇵 日文助數詞學習工具</h1>
     <p>速查 · 1〜10讀法 · 記憶卡 · 測驗 · 易混淆點</p>
   </div>
-  <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" aria-label="切換晝夜模式">🌙</button>
+  <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" aria-label="切換晝夜模式">
+    <svg id="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+    </svg>
+    <svg id="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+      <circle cx="12" cy="12" r="4"/>
+      <line x1="12" y1="2" x2="12" y2="5"/>
+      <line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="5" y2="12"/>
+      <line x1="19" y1="12" x2="22" y2="12"/>
+      <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/>
+      <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+      <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/>
+      <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+    </svg>
+  </button>
 </div>
 
 <div class="tabs">
@@ -483,6 +499,16 @@ body.dark .theme-toggle { border-color: rgba(255,255,255,.18); }
     </div>
     <div class="card-sub">いっかい・にかい…</div>
     <div class="card-ex">例：練習了3回（3次）</div>
+  </div>
+
+  <p class="section-label">數年齡</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span class="card-title">歳（さい）</span><span class="badge br">年齡</span>
+    </div>
+    <div class="card-sub">いっさい・にさい… 1・8・10→促音</div>
+    <div class="card-ex" style="color:var(--red)">⚠ 20歳＝はたち（特殊讀法，不是にじゅっさい）</div>
   </div>
 
   <p class="section-label">物品分類速查（依章節）</p>
@@ -679,6 +705,12 @@ const COUNTERS=[
     {n:'7',j:'七回',r:'ななかい',c:''},{n:'8',j:'八回',r:'はっかい',c:'促音'},{n:'9',j:'九回',r:'きゅうかい',c:''},
     {n:'10',j:'十回',r:'じゅっかい',c:'促音'},{n:'?',j:'何回',r:'なんかい',c:'疑問'},
   ]},
+  {id:'sai',name:'歳（さい）',sub:'年齡',nums:[
+    {n:'1',j:'一歳',r:'いっさい',c:'促音'},{n:'2',j:'二歳',r:'にさい',c:''},{n:'3',j:'三歳',r:'さんさい',c:''},
+    {n:'4',j:'四歳',r:'よんさい',c:''},{n:'5',j:'五歳',r:'ごさい',c:''},{n:'6',j:'六歳',r:'ろくさい',c:''},
+    {n:'7',j:'七歳',r:'ななさい',c:''},{n:'8',j:'八歳',r:'はっさい',c:'促音'},{n:'9',j:'九歳',r:'きゅうさい',c:''},
+    {n:'10',j:'十歳',r:'じゅっさい',c:'促音'},{n:'20',j:'二十歳',r:'はたち',c:'⚠ 特殊'},{n:'?',j:'何歳',r:'なんさい',c:'疑問'},
+  ]},
 ];
 
 /* ── 1〜10 讀法 ── */
@@ -688,7 +720,7 @@ function buildReadSel(){
   renderNums(0);
 }
 function selC(i){
-  document.querySelectorAll('.csel-btn').forEach((b,j)=>b.classList.toggle('on',j===i));
+  document.querySelectorAll('#csel .csel-btn').forEach((b,j)=>b.classList.toggle('on',j===i));
   renderNums(i);
 }
 const changeStyle={
@@ -729,6 +761,7 @@ const CARDS=[
   {f:'頭（とう）',fr:'いっとう・にとう…',b:'大型動物\n馬・象・牛・鯨魚\n1・8・10→促音\n其餘規律',ac:'var(--amber)'},
   {f:'羽（わ）',fr:'いちわ・にわ…',b:'鳥類・兔子\n雞・麻雀・鴿子\n發音最規律！\n數字直接＋わ',ac:'var(--accent)'},
   {f:'回（かい）',fr:'いっかい・にかい…',b:'次數\n練習了3回（さんかい）\n1・6・8・10→促音',ac:'var(--blue)'},
+  {f:'歳（さい）',fr:'いっさい・にさい…',b:'年齡\n1・8・10→促音（いっさい等）\n⚠ 20歳＝はたち！\n（不能念にじゅっさい）',ac:'var(--red)'},
 ];
 
 /* ── 物品題庫：3 章節 × 20 個物品 ── */
@@ -823,10 +856,11 @@ const COUNTER_READINGS={
   '頭':{'1':'いっとう','2':'にとう','3':'さんとう','5':'ごとう','6':'ろくとう','8':'はっとう','10':'じゅっとう'},
   '羽':{'1':'いちわ','2':'にわ','3':'さんわ','5':'ごわ','6':'ろくわ','8':'はちわ','10':'じゅうわ'},
   '回':{'1':'いっかい','2':'にかい','3':'さんかい','5':'ごかい','6':'ろっかい','8':'はっかい','10':'じゅっかい'},
+  '歳':{'1':'いっさい','2':'にさい','3':'さんさい','5':'ごさい','6':'ろくさい','8':'はっさい','10':'じゅっさい','20':'はたち'},
 };
 const ALL_COUNTER_NAMES={
   '個':'個（こ）','本':'本（ほん）','枚':'枚（まい）','冊':'冊（さつ）','台':'台（だい）',
-  '杯':'杯（はい）','人':'人（にん）','匹':'匹（ひき）','頭':'頭（とう）','羽':'羽（わ）','回':'回（かい）','つ':'〜つ',
+  '杯':'杯（はい）','人':'人（にん）','匹':'匹（ひき）','頭':'頭（とう）','羽':'羽（わ）','回':'回（かい）','歳':'歳（さい）','つ':'〜つ',
 };
 const SHAPE_DISTRACTORS={
   '本':['個（こ）','枚（まい）','冊（さつ）'],
@@ -840,6 +874,7 @@ const SHAPE_DISTRACTORS={
   '頭':['匹（ひき）','羽（わ）','台（だい）'],
   '羽':['匹（ひき）','頭（とう）','個（こ）'],
   '回':['個（こ）','本（ほん）','台（だい）'],
+  '歳':['人（にん）','回（かい）','個（こ）'],
 };
 function shuffleArr(a){return [...a].sort(()=>Math.random()-.5);}
 
@@ -934,6 +969,11 @@ const BASE_QS=[
   {q:'「2人」日文怎麼念？',a:'ふたり',o:['ににん','ふたり','ふたにん','にり'],h:'2人是特殊讀法'},
   {q:'「一冊」怎麼念？',a:'いっさつ',o:['いちさつ','いっさつ','いちたつ','いったつ'],h:'1→促音'},
   {q:'魚（さかな）を五___。空格填什麼？',a:'匹（ひき）',o:['頭（とう）','羽（わ）','枚（まい）','匹（ひき）'],h:'小〜中型動物'},
+  {q:'「20歳」日文怎麼念？',a:'はたち',o:['にじゅっさい','はたち','にじっさい','にさい'],h:'20歲是最特殊的讀法！'},
+  {q:'問年齡用哪個助數詞？',a:'歳（さい）',o:['歳（さい）','回（かい）','人（にん）','個（こ）'],h:'年齡'},
+  {q:'「一歳」怎麼念？',a:'いっさい',o:['いちさい','いっさい','いちたい','いったい'],h:'1→促音'},
+  {q:'「八歳」怎麼念？',a:'はっさい',o:['はちさい','はっさい','はちたい','はったい'],h:'8→促音'},
+  {q:'「何歳ですか」是在問什麼？',a:'年齡',o:['年齡','次數','人數','時間'],h:'歳＝年齡助數詞'},
 ];
 
 /* 為單一物品產生 1〜2 題（助數詞選擇 ＋ 讀法選擇） */
@@ -1055,9 +1095,13 @@ function sw(id){
 }
 
 /* ── theme ── */
+function setThemeIcon(isDark){
+  document.getElementById('icon-moon').style.display = isDark ? 'none' : 'block';
+  document.getElementById('icon-sun').style.display  = isDark ? 'block' : 'none';
+}
 function toggleTheme(){
   const isDark = document.body.classList.toggle('dark');
-  document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+  setThemeIcon(isDark);
   try { localStorage.setItem('counter-theme', isDark ? 'dark' : 'light'); } catch(e) {}
 }
 (function initTheme(){
@@ -1067,7 +1111,7 @@ function toggleTheme(){
   const useDark = saved ? saved === 'dark' : prefersDark;
   if (useDark) {
     document.body.classList.add('dark');
-    document.getElementById('themeBtn').textContent = '☀️';
+    setThemeIcon(true);
   }
 })();
 
